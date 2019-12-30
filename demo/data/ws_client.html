@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+   <h1>ws_client测试</h1>
+   <script type="text/javascript">
+       var ws_url = "ws://192.168.1.134:8812";
+       var websocket = new WebSocket(ws_url);
+       // 这里是前端的websocket
+       websocket.onopen = function (evt) {
+           websocket.send("hello-swoole");
+           console.log("conected-swoole-success");
+       }
+       websocket.onmessage = function (evt) {
+           console.log("swoole-return-data: " + evt.data);
+       }
+       websocket.onclose = function (evt) {
+           console.log("close-swoole-success");
+       }
+       websocket.onerror = function (evt,e) {
+           console.log("error: " + evt.data);
+       }
+   </script>
+</body>
+</html>
