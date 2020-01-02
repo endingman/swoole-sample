@@ -34,6 +34,14 @@ class Ws
     public function onOpen($server, $request)
     {
         echo "server: handshake success with fd{$request->fd}\n";
+        // 定时器
+        if ($request->fd == 1) {
+            // 每两秒执行
+            // swoole_timer_tick设置一个间隔时钟定时器，与after定时器不同的是tick定时器会持续触发，直到调用Timer::clear清除
+            swoole_timer_tick(2000, function () use ($timer_id) {
+                echo "2s: timerId:{$timer_id}";
+            });
+        }
     }
 
     public function onMessage($server, $frame)
@@ -46,6 +54,16 @@ class Ws
             'fd'   => $frame->fd,
         ];
         $server->task($data);
+
+        // 在指定的时间后执行函数。
+        // int Swoole\Timer::after(int $after_time_ms, callable $callback_function, ...$params);
+        // Swoole\Timer::after的函数风格别名是swoole_timer_after
+        // Swoole\Timer::after函数是一个一次性定时器，执行完成后就会销毁。此函数与PHP标准库提供的sleep函数不同，after是非阻塞的。而sleep调用后会导致当前的进程进入阻塞，将无法处理新的请求。
+
+        swoole_timer_after(5000, function () use ($server, $frame) {
+            echo "5s-after\n";
+            $server->push($frame->fd, "sever-time-after");
+        });
 
         $server->push($frame->fd, "this is server" . date('Y-m-d H:i:s'));
     }
